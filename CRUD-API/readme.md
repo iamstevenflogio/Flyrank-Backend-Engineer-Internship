@@ -67,7 +67,7 @@ This matches the Stage 3 checkpoint, which requires `POST /tasks` to return `201
 Add your screenshot image to the repository, for example at `docs/swagger-screenshot.png`, then embed it here:
 
 ```md
-![Swagger UI screenshot](docs/swagger-screenshot.png)
+![Swagger UI screenshot](./screenshot-week2.png)
 ```
 
 The assignment requires a Swagger UI screenshot in the README after `/docs` shows all endpoints and the full CRUD cycle works through “Try it out”.[1]
