@@ -8,12 +8,26 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 app.use(express.json());
 
-// In-memory data: this resets when we restart server
-const tasks = [
-    {id: 1, title: "Learn Express basics", done: false},
-    {id: 2, title: "Create a Task API", done: true},
-    {id: 3, title: "Test endpoints in Insomnia", done: true},
-]
+// Database 
+const Database = require('better-sqlite3');
+const db = new Database('tasks.db')
+
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY, 
+        title TEXT NOT NULL, 
+        done INTEGER NOT NULL DEFAULT 0
+    )
+`).run();
+
+const rowCount = db.prepare(`SELECT COUNT(*) AS count FROM tasks`).get();
+
+if (rowCount.count === 0) {
+    const insert = db.prepare('INSERT INTO tasks (title, done) VALUES (?, ?)'); 
+    insert.run('Learn Express basics', 0);
+    insert.run('Create a Task API', 1);
+    insert.run('Test endpoints in Insomnia', 1);
+}
 
 app.listen(port, () => {
   console.log(`it's alive on http://localhost:${port}`);
