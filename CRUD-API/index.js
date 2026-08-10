@@ -65,7 +65,6 @@ app.get('/tasks/:id', (req, res) => {
     res.json(task)
 })
 
-// Stage 3
 app.post('/tasks', (req, res) => {
     const { title } = req.body;
 
@@ -75,21 +74,16 @@ app.post('/tasks', (req, res) => {
         });
     }
 
-    const nextId = 
-        tasks.length > 0
-            ? Math.max(...tasks.map(task => task.id)) + 1
-            : 1;
+    // Insert into SQLite; SQLite assigns the id
+    const result = db.prepare(`
+        INSERT INTO tasks (title, done)
+        VALUES (?, ?)
+        `).run(title.trim(), 0);
 
-    const newTask = { 
-        id: nextId,
-        title: title.trim(),
-        done: false
-    };
-
-    tasks.push(newTask)
+    const newTask = db.prepare(`
+        SELECT * FROM tasks WHERE id = ?`).get(result.lastInsertRowid);
 
     res.status(201).json(newTask)
-
 });
 
 // Stage 4
