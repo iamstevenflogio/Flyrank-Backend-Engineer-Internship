@@ -48,19 +48,21 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/tasks', (req, res) => {
+    const tasks = db.prepare(`SELECT * FROM tasks`).all(); // reads from tasks on the database
+
     res.json(tasks)
 })
 
 app.get('/tasks/:id', (req, res) => {
     const id = Number(req.params.id);
-    const task = tasks.find((task) => task.id === id);
+    const task = db.prepare(`SELECT * FROM tasks WHERE id = ?`).get(id); // selects task with ID from the db
 
     if (!task) {
         return res.status(404).json({
-            error: `Task ${id} not found`
+            error: `Task not found`
         });
     }
-    res.send(task)
+    res.json(task)
 })
 
 // Stage 3
