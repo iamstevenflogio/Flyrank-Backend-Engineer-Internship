@@ -64,8 +64,12 @@ This matches the Stage 3 checkpoint, which requires `POST /tasks` to return `201
 
 ## Swagger UI screenshot
 
+<<<<<<< HEAD
 
-![Swagger UI screenshot](./screenshot-week2.png)
+=======
+
+> > > > > > > 1b06842 (Stage 5: database documentation)
+> > > > > > > ![Swagger UI screenshot](./screenshot-week2.png)
 
 The assignment requires a Swagger UI screenshot in the README after `/docs` shows all endpoints and the full CRUD cycle works through “Try it out”.[1]
 
@@ -76,6 +80,10 @@ The assignment requires a Swagger UI screenshot in the README after `/docs` show
 
 ## SQLite Screenshot
 
+<<<<<<< HEAD
 
 ![SQL screenshot](./SQL-screenshot.png)
 
+## Notes
+
+- SQLite was chosen as a database due to its single file setup, zero setup, and so that our API data survives restarts.
