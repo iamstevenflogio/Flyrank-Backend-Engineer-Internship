@@ -64,7 +64,6 @@ This matches the Stage 3 checkpoint, which requires `POST /tasks` to return `201
 
 ## Swagger UI screenshot
 
-Add your screenshot image to the repository, for example at `docs/swagger-screenshot.png`, then embed it here:
 
 ![Swagger UI screenshot](./screenshot-week2.png)
 
@@ -77,7 +76,6 @@ The assignment requires a Swagger UI screenshot in the README after `/docs` show
 
 ## SQLite Screenshot
 
-Add your screenshot image to the repository, for example at `docs/swagger-screenshot.png`, then embed it here:
 
 ![SQL screenshot](./SQL-screenshot.png)
 
