@@ -74,3 +74,10 @@ The assignment requires a Swagger UI screenshot in the README after `/docs` show
 
 - Data is stored only in memory, so restarting the server resets the task list to the three starter tasks. The assignment explicitly says there is no database yet and that losing data on restart is expected at this stage.[1]
 - The documented CRUD cycle should work both through `curl -i` and through Swagger UI at `/docs`.[1]
+
+## SQLite Screenshot
+
+Add your screenshot image to the repository, for example at `docs/swagger-screenshot.png`, then embed it here:
+
+![SQL screenshot](./SQL-screenshot.png)
+
