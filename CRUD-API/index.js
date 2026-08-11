@@ -86,14 +86,17 @@ app.post('/tasks', (req, res) => {
     res.status(201).json(newTask)
 });
 
-// Stage 4
+
 app.put('/tasks/:id', (req, res) => {
     const id = Number(req.params.id);
-    const task = tasks.find(task => task.id === id);
+
+    // Check if task exists
+    const task = db.prepare(`
+        SELECT * FROM tasks WHERE id = ?`).get(id)
 
     if (!task) {
         return res.status(404).json({
-            error: `Task ${id} not found`
+            error: `Task not found`
         });
     }
 
@@ -105,13 +108,17 @@ app.put('/tasks/:id', (req, res) => {
         });
     }
 
+    // Start with existing database values
+    let updatedTitle = task.title;
+    let updatedDone = task.done;
+
     if (title !== undefined) {
         if (!title || !title.trim()) {
             return res.status(400).json({
                 error: "title is required and cannot be empty"
             });
         }
-        task.title = title.trim();
+        updatedTitle = title.trim();
     }
 
     if (done !== undefined) {
@@ -120,23 +127,35 @@ app.put('/tasks/:id', (req, res) => {
                 error: "done must be a boolean"
             });
         }
-        task.done = done;
+        // SQLite stores Boolean values as 0 or 1
+        updatedDone = done ? 1 : 0;
     }
 
-    res.json(task);
+    db.prepare(`
+        UPDATE tasks
+        SET title = ?, done = ?
+        WHERE id = ?
+        `).run(updatedTitle, updatedDone, id);
+
+    const updatedTask = db.prepare(`
+        SELECT * FROM tasks WHERE id = ?
+        `).get(id);
+
+    res.json(updatedTask);
 });
 
 app.delete('/tasks/:id', (req, res) => {
     const id = Number(req.params.id);
-    const index = tasks.findIndex(task => task.id === id);
 
-    if (index === -1) {
+    const result = db.prepare(`
+        DELETE FROM tasks WHERE id = ?
+        `).run(id);
+
+    if (result.changes === 0) {
         return res.status(404).json({
-            error: `Task ${id} not found`
+            error: "Task not found"
         });
     }
-
-    tasks.splice(index, 1);
 
     res.status(204).send();
 });
