@@ -37,15 +37,13 @@ async function initDb() {
 }
 
 async function getAllTasks() {
-    const result = await pool.query(
-        `SELECT id, title, done FROM tasks ORDER BY id ASC`
-    );
+    const result = await pool.query(`SELECT * FROM  tasks`);
     return result.rows
 }
 
 async function getTaskById(id) {
     const result = await pool.query(
-        `SELECT id, title, done FROM tasks WHERE id = $1`, [id]
+        `SELECT * FROM tasks WHERE id = $1`, [id]
     );
     return result.rows[0] || null;
 }
@@ -53,14 +51,14 @@ async function getTaskById(id) {
 async function createTask(title) {
     const result = await pool.query(
         `
-        INSERT INTO tasks (title, done),
+        INSERT INTO tasks (title, done)
         VALUES ($1, $2)
         RETURNING id, title, done
         `,
         [title, false]
     );
     return result.rows[0];
-}
+}   
 
 async function updateTask(id, title, done) {
     const result = await pool.query(

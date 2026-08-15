@@ -132,7 +132,7 @@ app.delete('/tasks/:id', async (req, res) => {
         const id = Number(req.params.id);
         const deletedCount = await deleteTask(id);
 
-        if (result.changes === 0) {
+        if (deletedCount === 0) {
             return res.status(404).json({
                 error: "Task not found"
             });
