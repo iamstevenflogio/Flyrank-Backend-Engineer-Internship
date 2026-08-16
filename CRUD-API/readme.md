@@ -1,43 +1,85 @@
 # Task API
 
-A small CRUD API built with Node.js and Express for managing an in-memory to-do list. It supports creating, reading, updating, and deleting tasks, includes Swagger UI documentation at `/docs`, and was built as part of the FlyRank Backend Track Week 2 assignment.[1]
+A CRUD Task API built with Node.js, Express, PostgreSQL, and Docker Compose.
 
-## Install and run
+The API supports creating, reading, updating, and deleting tasks. It uses PostgreSQL for persistent storage and starts the API plus database together with Docker Compose.
+
+## Run the project
 
 ### Requirements
 
-- Node.js
-- npm
+- Docker Desktop
+- Git
 
 ### Setup
 
-```bash
-npm install
-```
-
-### Run
+Copy the example environment file:
 
 ```bash
-node index.js
+cp .env.example .env
 ```
 
-The server runs locally at `http://localhost:3000` and Swagger UI is available at `http://localhost:3000/docs`.[1]
+> PowerShell alternative:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### Start the full stack
+
+```bash
+docker compose up --build
+```
+
+The API runs at:
+
+- API: http://localhost:3000
+- Swagger UI: http://localhost:3000/docs
+- Health check: http://localhost:3000/health
+
+To stop the stack:
+
+```bash
+docker compose down
+```
+
+## Environment variables
+
+Create a `.env` file based on `.env.example`.
+
+| Variable | Description |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string used by the API |
+
+Example value for local manual development:
+
+```env
+DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
+```
+
+Inside Docker Compose, the API connects to PostgreSQL using the `db` service name:
+
+```env
+DATABASE_URL=postgres://postgres:dev@db:5432/tasks
+```
+
+> `.env` is ignored by Git. Do not commit secrets.
 
 ## Endpoints
 
-| Method | Path         | Description                      | Success status | Error status                                         |
-| ------ | ------------ | -------------------------------- | -------------- | ---------------------------------------------------- |
-| GET    | `/`          | Returns API metadata             | `200`          | -                                                    |
-| GET    | `/health`    | Returns health status            | `200`          | -                                                    |
-| GET    | `/tasks`     | Returns all tasks                | `200`          | -                                                    |
-| GET    | `/tasks/:id` | Returns one task by id           | `200`          | `404` if task does not exist                         |
-| POST   | `/tasks`     | Creates a new task               | `201`          | `400` if title is missing or empty                   |
-| PUT    | `/tasks/:id` | Updates a task title and/or done | `200`          | `400` for invalid body, `404` if task does not exist |
-| DELETE | `/tasks/:id` | Deletes a task                   | `204`          | `404` if task does not exist                         |
+| Method | Path | Description | Success status | Error status |
+| --- | --- | --- | --- | --- |
+| GET | `/` | Returns API metadata | `200` | - |
+| GET | `/health` | Returns API health status | `200` | - |
+| GET | `/tasks` | Returns all tasks | `200` | `500` on server error |
+| GET | `/tasks/:id` | Returns one task by ID | `200` | `404` if task does not exist |
+| POST | `/tasks` | Creates a new task | `201` | `400` if title is missing or empty |
+| PUT | `/tasks/:id` | Updates a task title and/or done status | `200` | `400` for invalid body, `404` if task does not exist |
+| DELETE | `/tasks/:id` | Deletes a task | `204` | `404` if task does not exist |
 
-## Example curl -i output
+## Example request
 
-Example request:
+Create a task:
 
 ```bash
 curl -i -X POST http://localhost:3000/tasks \
@@ -49,41 +91,67 @@ Example response:
 
 ```http
 HTTP/1.1 201 Created
-X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
-Content-Length: 41
-ETag: W/"29-example"
-Date: Sun, 09 Aug 2026 00:00:00 GMT
-Connection: keep-alive
-Keep-Alive: timeout=5
 
 {"id":4,"title":"Buy milk","done":false}
 ```
 
-This matches the Stage 3 checkpoint, which requires `POST /tasks` to return `201 Created` and the new task JSON when a valid title is sent.[1]
+Get all tasks:
 
-## Swagger UI screenshot
+```bash
+curl -i http://localhost:3000/tasks
+```
 
-<<<<<<< HEAD
+## Database persistence
 
-=======
+PostgreSQL runs in the `db` Docker Compose service. The `taskdata` Docker volume stores Postgres data outside the database container.
 
-> > > > > > > 1b06842 (Stage 5: database documentation)
-> > > > > > > ![Swagger UI screenshot](./screenshot-week2.png)
+This means tasks remain available after a full restart:
 
-The assignment requires a Swagger UI screenshot in the README after `/docs` shows all endpoints and the full CRUD cycle works through “Try it out”.[1]
+```bash
+docker compose down
+docker compose up
+```
+
+For example, a task created before the restart remains available through:
+
+```bash
+curl -i http://localhost:3000/tasks
+```
+
+## Database screenshot
+
+Add your Postgres screenshot below. It should show the `tasks` table and its rows, for example using:
+
+```bash
+docker compose exec db psql -U postgres -d tasks
+```
+
+Then run:
+
+```sql
+\dt
+SELECT * FROM tasks;
+```
+
+![PostgreSQL tasks table](./postgres-screenshot.png)
+
+## Project structure
+
+```text
+.
+├── index.js          # Express routes and application startup
+├── db.js             # PostgreSQL queries and database initialization
+├── Dockerfile        # API container image instructions
+├── compose.yaml      # API + Postgres stack definition
+├── .env.example      # Example environment variables
+└── openapi.json      # Swagger/OpenAPI documentation
+```
 
 ## Notes
 
-- Data is stored only in memory, so restarting the server resets the task list to the three starter tasks. The assignment explicitly says there is no database yet and that losing data on restart is expected at this stage.[1]
-- The documented CRUD cycle should work both through `curl -i` and through Swagger UI at `/docs`.[1]
-
-## SQLite Screenshot
-
-<<<<<<< HEAD
-
-![SQL screenshot](./SQL-screenshot.png)
-
-## Notes
-
-- SQLite was chosen as a database due to its single file setup, zero setup, and so that our API data survives restarts.
+- PostgreSQL automatically creates the `tasks` table if it does not exist.
+- The API seeds three starter tasks only when the table is empty.
+- All database queries use parameterized PostgreSQL placeholders such as `$1`, `$2`, and `$3`.
+- Task IDs are generated automatically by PostgreSQL using `SERIAL PRIMARY KEY`.
+- The API behavior remains the same even though its storage changed from memory, to SQLite, to containerized PostgreSQL.
