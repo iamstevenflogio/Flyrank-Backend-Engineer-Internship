@@ -47,8 +47,8 @@ docker compose down
 
 Create a `.env` file based on `.env.example`.
 
-| Variable | Description |
-| --- | --- |
+| Variable       | Description                                  |
+| -------------- | -------------------------------------------- |
 | `DATABASE_URL` | PostgreSQL connection string used by the API |
 
 Example value for local manual development:
@@ -67,15 +67,15 @@ DATABASE_URL=postgres://postgres:dev@db:5432/tasks
 
 ## Endpoints
 
-| Method | Path | Description | Success status | Error status |
-| --- | --- | --- | --- | --- |
-| GET | `/` | Returns API metadata | `200` | - |
-| GET | `/health` | Returns API health status | `200` | - |
-| GET | `/tasks` | Returns all tasks | `200` | `500` on server error |
-| GET | `/tasks/:id` | Returns one task by ID | `200` | `404` if task does not exist |
-| POST | `/tasks` | Creates a new task | `201` | `400` if title is missing or empty |
-| PUT | `/tasks/:id` | Updates a task title and/or done status | `200` | `400` for invalid body, `404` if task does not exist |
-| DELETE | `/tasks/:id` | Deletes a task | `204` | `404` if task does not exist |
+| Method | Path         | Description                             | Success status | Error status                                         |
+| ------ | ------------ | --------------------------------------- | -------------- | ---------------------------------------------------- |
+| GET    | `/`          | Returns API metadata                    | `200`          | -                                                    |
+| GET    | `/health`    | Returns API health status               | `200`          | -                                                    |
+| GET    | `/tasks`     | Returns all tasks                       | `200`          | `500` on server error                                |
+| GET    | `/tasks/:id` | Returns one task by ID                  | `200`          | `404` if task does not exist                         |
+| POST   | `/tasks`     | Creates a new task                      | `201`          | `400` if title is missing or empty                   |
+| PUT    | `/tasks/:id` | Updates a task title and/or done status | `200`          | `400` for invalid body, `404` if task does not exist |
+| DELETE | `/tasks/:id` | Deletes a task                          | `204`          | `404` if task does not exist                         |
 
 ## Example request
 
@@ -155,3 +155,14 @@ SELECT * FROM tasks;
 - All database queries use parameterized PostgreSQL placeholders such as `$1`, `$2`, and `$3`.
 - Task IDs are generated automatically by PostgreSQL using `SERIAL PRIMARY KEY`.
 - The API behavior remains the same even though its storage changed from memory, to SQLite, to containerized PostgreSQL.
+
+## Stage 5 verification
+
+This project was verified from a fresh clone:
+
+```bash
+cp .env.example .env
+docker compose up
+```
+
+Then `GET /tasks` returns the seeded tasks without manual PostgreSQL setup.
