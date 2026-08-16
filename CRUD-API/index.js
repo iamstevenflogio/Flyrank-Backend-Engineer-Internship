@@ -116,12 +116,11 @@ app.get('/tasks/:id', async (req, res) => {
                         error: "done must be a boolean"
                     });
                 }
-                // SQLite stores Boolean values as 0 or 1
                 updatedDone = done;
             }
 
             const updatedTask = await updateTask(id, updatedTitle, updatedDone); 
-                res.json(updatedTask);
+                res.status.json(updatedTask);
         } catch(err) {
             res.status(500).json({ error: 'Internal server error' });
         }
