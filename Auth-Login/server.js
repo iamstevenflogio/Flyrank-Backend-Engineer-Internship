@@ -56,7 +56,35 @@ app.post("/auth/login", async (req,res) => {
             refresh_token: data.session.refresh_token,
         });
 });
-    
+
+// GET /public/info
+app.get('/public/info', (req, res) => {
+    return res.status(200).json({
+        message: 'Welcome stranger! This info is public.',
+    });
+});
+
+app.get('/protected/profile', (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+            error: 'Access token required',
+        });
+    }
+
+    if (!token) {
+        return res.status(401).json({
+            error: 'Access token required',
+        });
+    }
+
+    return res.status(200).json({
+        message: 'Token received. Profile route is protected.',
+        token,
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
