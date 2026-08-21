@@ -2,10 +2,19 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// *************** swagger ui stuff
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+
+const openapiDocument = JSON.parse(fs.readFileSync('./openapi.json', 'utf8'));
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
+// *************** 
+
+dotenv.config();
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
