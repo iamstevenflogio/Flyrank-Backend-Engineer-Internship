@@ -8,12 +8,12 @@ This project implements a complete authentication flow using Supabase Auth and E
 
 ## Features
 
-- User signup with email and password validation. [1]
-- User login with JWT access token and refresh token responses. [2]
-- Public route accessible without authentication. [3]
-- Protected profile and dashboard routes secured with bearer-token middleware. [4]
-- Logout endpoint protected by JWT verification. [5]
-- Swagger UI documentation at `/docs` with JWT bearer authorization support. [6]
+- User signup with email and password validation. 
+- User login with JWT access token and refresh token responses. 
+- Public route accessible without authentication. 
+- Protected profile and dashboard routes secured with bearer-token middleware. 
+- Logout endpoint protected by JWT verification. 
+- Swagger UI documentation at `/docs` with JWT bearer authorization support. 
 
 ## Tech Stack
 
@@ -119,7 +119,7 @@ The screenshots below document the implementation and testing of each stage in t
 
 Successful signup and login flow using Supabase Auth. The login endpoint returns an access token and refresh token for authenticated requests.
 
-![Stage 1 — Signup and Login](Auth-Login/screenshots/Stage%201-screenshot.png)
+![Stage 1 — Signup and Login](./screenshots/Stage%201-screenshot.png)
 
 ---
 
@@ -127,7 +127,7 @@ Successful signup and login flow using Supabase Auth. The login endpoint returns
 
 Public endpoint access and protected-route validation. Requests without a bearer token are rejected with `401 Unauthorized`.
 
-![Stage 2 — Public and Protected Routes](Auth-Login/screenshots/Stage%202-screenshot.png)
+![Stage 2 — Public and Protected Routes](./screenshots/Stage%202-screenshot.png)
 
 ---
 
@@ -135,7 +135,7 @@ Public endpoint access and protected-route validation. Requests without a bearer
 
 Protected profile access after Supabase verifies a valid JWT. The response returns safe user metadata: user ID, email, and account creation date.
 
-![Stage 3 — JWT Token Verification](Auth-Login/screenshots/Stage%203-screenshot.png)
+![Stage 3 — JWT Token Verification](./screenshots/Stage%203-screenshot.png)
 
 ---
 
@@ -151,7 +151,7 @@ Reusable authentication middleware was implemented and applied to protected rout
 
 Swagger UI is served at `/docs` with JWT bearer authorization enabled. The protected profile endpoint was successfully tested through the browser using the **Authorize** flow.
 
-![Stage 5 — Swagger UI Bearer Authentication](Auth-Login/screenshots/Stage%205-screenshot.png)
+![Stage 5 — Swagger UI Bearer Authentication](./screenshots/Stage%205-screenshot.png)
 
 ## Notes
 
