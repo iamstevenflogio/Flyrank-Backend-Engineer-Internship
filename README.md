@@ -6,7 +6,7 @@ A collection of backend engineering projects completed during my Flyrank interns
 
 Each project folder contains its own README with setup instructions, endpoint documentation, implementation details, screenshots, and testing examples.
 
-- [View CRUD API documentation](./CRUD-API/README.md)
+- [View CRUD API documentation](./CRUD-API/readme.md)
 - [View Auth Login API documentation](./Auth-Login/readme.md)
 
 ## Author
