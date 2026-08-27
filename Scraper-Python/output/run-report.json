@@ -1,0 +1,15 @@
+{
+  "started_at": "2026-08-27T16:20:57.448605Z",
+  "duration_seconds": 13.91,
+  "pages_fetched": 0,
+  "cache_hits": 63,
+  "valid_records": 60,
+  "invalid_records": 0,
+  "failed_pages": 1,
+  "failures": [
+    {
+      "url": "https://books.toscrape.com/catalogue/this-book-does-not-exist_99999/index.html",
+      "reason": "Fetch failed: status_code=404 url=https://books.toscrape.com/catalogue/this-book-does-not-exist_99999/index.html"
+    }
+  ]
+}
