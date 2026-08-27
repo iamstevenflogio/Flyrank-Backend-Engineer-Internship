@@ -3,6 +3,10 @@ from pathlib import Path
 from time import sleep
 from urllib.parse import urljoin
 import json
+import re 
+from typing import Any
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationError
+
 
 import requests
 from bs4 import BeautifulSoup
@@ -17,6 +21,21 @@ USER_AGENT = (
 TIMEOUT_SECONDS = 10
 REQUEST_DELAY_SECONDS = 0.5
 MAX_CATALOGUE_PAGES = 3
+
+OUTPUT_DIR = Path("output")
+
+class BookRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(min_length=1)
+    product_url: HttpUrl
+    price_text: str = Field(min_length=1)
+    price_gbp: float = Field(ge=0)
+    availability_text: str = Field(min_length=1)
+    rating_text: str = Field(min_length=1)
+    description: str | None = None
+    source_page: HttpUrl
+    fetched_at: datetime
 
 def cache_path_for_catalogue_page(page_number: int) -> Path:
     return CACHE_DIR / f"catalogue-page-{page_number}.html"
@@ -181,15 +200,77 @@ def extract_all_raw_records(book_urls: list[str]) -> list[dict]:
 
     return raw_records
 
+def normalize_price(price_text: str) -> float:
+    cleaned = price_text.replace("£", "").strip()
+
+    if not re.fullmatch(r"\d+(\.\d{2})?", cleaned):
+        raise ValueError(f"Invalid GBP price text: {price_text!r}")
+
+    return float(cleaned) 
+
+def normalize_raw_record(raw_record: dict[str, Any]) -> dict[str, Any]:
+    normalized = raw_record.copy()
+    normalized["price_gbp"] = normalize_price(raw_record["price_text"])
+    return normalized
+
+def validate_and_store_records(raw_records: list[dict],) -> tuple[list[dict], list[dict]]:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    valid_by_url: dict[str, dict] = {}
+    errors = []
+
+    for raw_record in raw_records:
+        try:
+            normalized = normalize_raw_record(raw_record)
+            validated = BookRecord.model_validate(normalized)
+
+            record = validated.model_dump(mode="json")
+            valid_by_url[record["product_url"]] = record
+
+        except (ValueError, ValidationError) as error:
+            errors.append(
+                {
+                    "product_url": raw_record.get("product_url"),
+                    "reason": str(error),
+                    "raw_record": raw_record
+                }
+            )
+
+    valid_records = list(valid_by_url.values())
+
+    books_file = OUTPUT_DIR / "books.json"
+    errors_file = OUTPUT_DIR / "errors.json"
+
+    books_file.write_text(
+        json.dumps(valid_records, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    errors_file.write_text(
+        json.dumps(errors, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    return valid_records, errors
+
+
 def main():
     book_urls = discover_catalogue_pages()
     raw_records = extract_all_raw_records(book_urls)
 
+    valid_records, errors = validate_and_store_records(raw_records)
+
     print("\n--- Detail summary ---")
     print(f"detail_pages={len(raw_records)}")
 
-    print("\nOne complete raw record")
-    print(json.dumps(raw_records[0], indent=2, ensure_ascii=False))
+    print("\n--- Validation summary ---")
+    print(f"valid_records={len(valid_records)}")
+    print(f"invalid_records={len(errors)}")
+    print(f"books_file={OUTPUT_DIR / 'books.json'}")
+    print(f"errors_file={OUTPUT_DIR / 'errors.json'}")
+
+    print("\nOne validated record")
+    print(json.dumps(valid_records[0], indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
     main()
