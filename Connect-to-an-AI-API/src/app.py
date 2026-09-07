@@ -1,9 +1,22 @@
 import os 
+from pathlib import Path
+from dotenv import load_dotenv
+from openai import OpenAI
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from llm.schema import TriageRequest, TriageResponse
+from src.llm.schema import TriageRequest, TriageResponse
+
+load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROMPT_PATH = PROJECT_ROOT / "prompts" / "support-triage-v1.md"
+SYSTEM_PROMPT = PROMPT_PATH.read_text(encoding="utf-8")
+
+client = OpenAI(
+    base_url=os.environ["LLM_BASE_URL"],
+    api_key=os.environ["LLM_API_KEY"],
+)
 
 app = FastAPI()
 
@@ -17,12 +30,18 @@ def triage(request: TriageRequest) -> TriageResponse:
             reason="Stub response for endpoint testing",
         )
 
-    return TriageResponse(
-        category="other",
-        urgency="low",
-        confidence=0.0,
-        reason="LLM integration is not enabled yet.",
+    response = client.chat.completions.create(
+        model=os.environ["LLM_MODEL"],
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": request.text},
+        ],
+        temperature=0,
     )
+
+    raw_output = response.choices[0].message.content
+    print(raw_output)
+    return TriageResponse.model_validate_json(raw_output)
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(
