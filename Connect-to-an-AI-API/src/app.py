@@ -38,7 +38,13 @@ logger = logging.getLogger(__name__)
 client = OpenAI(
     base_url=os.environ["LLM_BASE_URL"],
     api_key=os.environ["LLM_API_KEY"],
-    timeout=LLM_TIMEOUT_SECONDS,
+    timeout=httpx.Timeout(
+        timeout=LLM_TIMEOUT_SECONDS,
+        connect=10.0,
+        read=LLM_TIMEOUT_SECONDS,
+        write=LLM_TIMEOUT_SECONDS,
+        pool=10.0,
+    ),
     max_retries=0,
 )
 
