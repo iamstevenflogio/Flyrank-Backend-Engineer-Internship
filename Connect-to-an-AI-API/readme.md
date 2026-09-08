@@ -44,3 +44,13 @@ Invoke-RestMethod `
 ```
 
 Expected result: HTTP 400 with a JSON error identifying the missing `text` field.
+
+## LLM reliability policy
+
+- Each LLM request has a 30-second timeout.
+- SDK retries are disabled with `max_retries=0`.
+- The application retries only timeouts, connection errors, HTTP 429 responses, and HTTP 5xx responses.
+- Retries use exponential backoff with jitter and allow at most two retries after the first attempt.
+- HTTP 400, 401, and 403 errors are not retried.
+- Set `LLM_ENABLED=false` to disable live model calls and return a deterministic fallback.
+- Per-call token usage, duration, repair status, and attempt number are recorded in `logs/llm-calls.jsonl`.
